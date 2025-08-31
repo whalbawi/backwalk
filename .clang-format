@@ -1,0 +1,13 @@
+ColumnLimit: 100
+IndentWidth: 4
+NamespaceIndentation: None
+
+PointerAlignment: Left
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+BinPackArguments: false
+BinPackParameters: false
