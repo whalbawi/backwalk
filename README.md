@@ -1,23 +1,16 @@
-# Skeleton
-Skeleton is a C++ project skeleton written in C++14.
+# Backwalk
+Backwalk is a C library for collecting stacktraces.
 
 ## Prerequisites
 The project is built using [CMake](https://cmake.org/) and requires version 3.20 or newer to work correctly.
 
-Skeleton takes a dependency on [googletest](https://github.com/google/googletest) for unit tests and is included
-in the source tree as a `git` submodule. Run the following to check out the module and make it available
-to the build system:
-```bash
-$ cd <path-to-skeleton>
-$ git submodule update --init
-```
-
 ## Building
-Skeleton is tested on Linux and macOS.
+Backwalk is built and tested on Ubuntu 24.04. Both x86-64 and arm64
+architectures are supported.
 
 The following will generate the build system and then build all targets:
 ```bash
-$ cd <path-to-skeleton>
+$ cd <path-to-backwalk>
 $ cmake -B build
 $ cmake --build build
 ```
@@ -25,7 +18,7 @@ $ cmake --build build
 ## Tests
 Start by building the unit tests executable:
 ```bash
-$ cmake --build build --target skeleton-tests
+$ cmake --build build --target backwalk-tests
 ```
 
 Now run the unit tests using CMake's `ctest` utility:
@@ -35,5 +28,5 @@ $ ctest --test-dir build -R unit-tests -V
 
 Alternatively, run the tests executable directly:
 ```bash
-$ ./build/skeleton-tests
+$ ./build/backwalk-tests
 ```

@@ -1,0 +1,75 @@
+name: backwalk CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  format:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ./tools/install-deps.sh
+
+    - name: Run clang-format
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_COMMIT=${{ github.event.pull_request.base.sha }}
+            THIS_COMMIT=${{ github.event.pull_request.head.sha }}
+            git clang-format-19 --diff $BASE_COMMIT $THIS_COMMIT
+        else
+            git clang-format-19 --diff HEAD^
+        fi
+
+  lint:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ./tools/install-deps.sh
+
+    - name: Generate Build System
+      run: cmake -B ${{github.workspace}}/build
+
+    - name: Run clang-tidy
+      run: cmake --build ${{github.workspace}}/build -t lint
+
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
+        compiler: [ gcc, clang ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ./tools/install-deps.sh
+
+    - name: Generate Build System
+      run: |
+        if [ "${{ matrix.compiler }}" = "clang" ]; then
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        else
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+        fi
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Run unit tests
+      run: ctest --test-dir ${{github.workspace}}/build -R unit-tests -V
