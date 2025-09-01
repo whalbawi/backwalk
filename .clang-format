@@ -1,6 +1,7 @@
 ColumnLimit: 100
 IndentWidth: 4
 NamespaceIndentation: None
+ShortNamespaceLines: 0
 
 PointerAlignment: Left
 
@@ -11,3 +12,46 @@ AllowShortLoopsOnASingleLine: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 BinPackArguments: false
 BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+AlwaysBreakTemplateDeclarations: Yes
+
+InsertNewlineAtEOF: true
+
+IncludeIsMainRegex: "(_test)?$"
+IncludeBlocks: Regroup
+SortIncludes: true
+IncludeCategories:
+  - Regex:           '^<[a-z]+\.h>'                    # <unistd.h>
+    Priority:        1
+    SortPriority:    1
+  - Regex:           '^<[a-z]+/.*\.h>'                 # <sys/event.h>
+    SortPriority:    2
+    Priority:        1
+  - Regex:           '^<c(errno|signal|string|std).*>' # <cstring>
+    Priority:        2
+    SortPriority:    3
+  - Regex:           '^<.*/'                           # <a/other>
+    Priority:        3
+    SortPriority:    5
+  - Regex:           '^<[^/]*>'                        # <other>
+    Priority:        3
+    SortPriority:    4
+  - Regex:           '^"gtest/.*"'                     # "gtest/gtest.h"
+    SortPriority:    8
+    Priority:        5
+  - Regex:           '^"benchmark/.*"'                 # "gtest/gtest.h"
+    SortPriority:    9
+    Priority:        6
+  - Regex:           '^".*/'                           # "b/project"
+    SortPriority:    7
+    Priority:        4
+  - Regex:           '^".*"'                           # "project"
+    SortPriority:    6
+    Priority:        4
+
+---
+Language: Json
+IndentWidth: 2

@@ -1,0 +1,40 @@
+Checks: >
+  -*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  google-*,
+  misc-*,
+  performance-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -readability-identifier-length,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-macro-usage
+
+HeaderFilterRegex: "(src|include)/.*"
+ExcludeHeaderFilterRegex: "benchmark/.*"
+WarningsAsErrors: "*"
+
+CheckOptions:
+ - { key: readability-identifier-naming.NamespaceCase,         value: lower_case }
+ - { key: readability-identifier-naming.ClassCase,             value: CamelCase  }
+ - { key: readability-identifier-naming.StructCase,            value: CamelCase  }
+ - { key: readability-identifier-naming.TemplateParameterCase, value: CamelCase  }
+ - { key: readability-identifier-naming.FunctionCase,          value: lower_case }
+ - { key: readability-identifier-naming.VariableCase,          value: lower_case }
+ - { key: readability-identifier-naming.PrivateMemberSuffix,   value: _          }
+ - { key: readability-identifier-naming.ProtectedMemberSuffix, value: _          }
+ - { key: readability-identifier-naming.MacroDefinitionCase,   value: UPPER_CASE }
+ - { key: readability-identifier-naming.EnumConstantCase,      value: UPPER_CASE }
+ - { key: readability-identifier-naming.GlobalConstantCase,    value: lower_case }
+ - { key: readability-identifier-naming.GlobalConstantPrefix,  value: k_         }
+ - { key: readability-identifier-naming.ConstantMemberCase,    value: lower_case }
+ - { key: readability-identifier-naming.ConstantMemberSuffix,  value: _          }
+ - { key: readability-identifier-naming.StaticConstantCase,    value: lower_case }
+ - { key: readability-identifier-naming.StaticConstantPrefix,  value: k_         }
+
+ - { key: bugprone-unused-return-value.CheckedFunctions,   value: '^.*$' }
+ - { key: bugprone-unused-return-value.CheckedReturnTypes, value: '^.*$' }
+ - { key: bugprone-unused-return-value.AllowCastToVoid,    value:  true  }

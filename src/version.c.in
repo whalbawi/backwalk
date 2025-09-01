@@ -1,0 +1,6 @@
+#cmakedefine BACKWALK_PROJECT_VERSION "@BACKWALK_PROJECT_VERSION@"
+#cmakedefine BACKWALK_GIT_COMMIT_HASH "@BACKWALK_GIT_COMMIT_HASH@"
+
+const char* bw_version(void) {
+    return "version: " BACKWALK_PROJECT_VERSION " - commit: " BACKWALK_GIT_COMMIT_HASH;
+}

@@ -1,55 +1,63 @@
 cmake_minimum_required(VERSION 3.20)
-project(skeleton CXX)
-
-set(CMAKE_CXX_STANDARD 14)
+project(backwalk C CXX)
 
 enable_testing()
 
+add_compile_options(
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Directories
-set(SKELETON_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(SKELETON_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
-
-set(SKELETON_THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
-set(SKELETON_GOOGLETEST_DIR ${SKELETON_THIRD_PARTY_DIR}/googletest)
-
-# Dependencies
-add_subdirectory(${SKELETON_GOOGLETEST_DIR} EXCLUDE_FROM_ALL)
+set(BACKWALK_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(BACKWALK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(BACKWALK_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 # Project version
-file(READ VERSION SKELETON_PROJECT_VERSION)
-string(STRIP ${SKELETON_PROJECT_VERSION} SKELETON_PROJECT_VERSION)
+file(READ VERSION BACKWALK_PROJECT_VERSION)
+string(STRIP ${BACKWALK_PROJECT_VERSION} BACKWALK_PROJECT_VERSION)
 
 # and commit
 execute_process(COMMAND git describe --always --dirty
-    OUTPUT_VARIABLE SKELETON_GIT_COMMIT_HASH
-    ERROR_VARIABLE SKELETON_GIT_COMMIT_ERROR
+    OUTPUT_VARIABLE BACKWALK_GIT_COMMIT_HASH
+    ERROR_VARIABLE BACKWALK_GIT_COMMIT_ERROR
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE SKELETON_GIT_COMMIT_RESULT
+    RESULT_VARIABLE BACKWALK_GIT_COMMIT_RESULT
 )
-if (NOT ${SKELETON_GIT_COMMIT_RESULT} STREQUAL 0)
-    message(WARNING "Could not retrieve git commit: " ${SKELETON_GIT_COMMIT_ERROR})
-    set(SKELETON_GIT_COMMIT_HASH unknown)
+if (NOT ${BACKWALK_GIT_COMMIT_RESULT} STREQUAL 0)
+    message(WARNING "Could not retrieve git commit: " ${BACKWALK_GIT_COMMIT_ERROR})
+    set(BACKWALK_GIT_COMMIT_HASH unknown)
 endif()
 
-message("skeleton version information: " ${SKELETON_PROJECT_VERSION} " - " ${SKELETON_GIT_COMMIT_HASH})
-configure_file(${SKELETON_SRC_DIR}/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/gen/version.h @ONLY)
+message("backwalk version information: " ${BACKWALK_PROJECT_VERSION} " - " ${BACKWALK_GIT_COMMIT_HASH})
+configure_file(${BACKWALK_SRC_DIR}/version.c.in ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c @ONLY)
 
 # Source files
-set(SKELETON_SRC_LIST
-    ${SKELETON_SRC_DIR}/skeleton.cpp
+set(BACKWALK_SRC_LIST
+    ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c
 )
 
 # Test files
-set(SKELETON_TEST_LIST
-    ${SKELETON_TEST_DIR}/skeleton_test.cpp
+set(BACKWALK_TEST_LIST
+    ${BACKWALK_TEST_DIR}/main.c
+    ${BACKWALK_TEST_DIR}/version_test.c
 )
 
-add_library(skeleton-lib ${SKELETON_SRC_LIST})
-target_include_directories(skeleton-lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gen)
-set_target_properties(skeleton-lib PROPERTIES OUTPUT_NAME skeleton)
+add_library(backwalk ${BACKWALK_SRC_LIST})
+target_include_directories(backwalk PUBLIC ${BACKWALK_INCLUDE_DIR})
 
-add_executable(skeleton-tests ${SKELETON_TEST_LIST})
-target_include_directories(skeleton-tests PRIVATE ${SKELETON_SRC_DIR})
-target_link_libraries(skeleton-tests skeleton-lib gtest_main)
+add_executable(backwalk-tests ${BACKWALK_TEST_LIST})
+target_include_directories(backwalk-tests PRIVATE ${BACKWALK_SRC_DIR})
+target_link_libraries(backwalk-tests backwalk)
 
-add_test(unit-tests skeleton-tests)
+add_test(unit-tests backwalk-tests)
+
+file(GLOB_RECURSE HDR_FILES "${BACKWALK_SRC_DIR}/*.h" "${BACKWALK_INCLUDE_DIR}/*.h")
+add_custom_target(lint
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run-clang-tidy.py -allow-no-checks -p=${CMAKE_BINARY_DIR}
+  COMMENT "Running clang-tidy..."
+)
