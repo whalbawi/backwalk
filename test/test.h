@@ -1,7 +1,7 @@
 #ifndef BW_TEST_COMMON_H
 #define BW_TEST_COMMON_H
 
-#include <stdbool.h>  // for true
+#include <stdbool.h>  // for true, false
 #include <stdio.h>    // for fprintf, stderr, NULL
 
 #include "common.h"   // for BW_UNUSED
@@ -64,10 +64,14 @@ typedef enum {
             result_str = "UNKNOWN";                                                                \
         }                                                                                          \
         BW_UNUSED(                                                                                 \
-            fprintf(stderr, "END: %s." #test_function " %s\n", TEST_SUITENAME_, result_str));      \
+            fprintf(stderr, "END: %s." #test_function " %s\n\n", TEST_SUITENAME_, result_str));    \
     } while (0)
 
-#define TEST(test_name) TEST_RESULT_ test_name(void)
+#define TEST(test_name, test_body)                                                                 \
+    TEST_RESULT_ test_name(void) {                                                                 \
+        test_body;                                                                                 \
+        TEST_OK();                                                                                 \
+    }
 
 #define TEST_LOG(fmt, ...)                                                                         \
     do {                                                                                           \
@@ -105,6 +109,7 @@ typedef enum {
     } while (0)
 
 #define TEST_ASSERT_TRUE(expr) TEST_ASSERT_EQ_BOOL_(expr, true)
+#define TEST_ASSERT_FALSE(expr) TEST_ASSERT_EQ_BOOL_(expr, false)
 
 #define TEST_ASSERT_NONNULL(expr)                                                                  \
     do {                                                                                           \
@@ -126,5 +131,7 @@ typedef enum {
 #define TEST_OK() return TEST_RESULT_OK
 
 #define TEST_FAIL() return TEST_RESULT_FAIL
+
+#define TEST_ERROR() return TEST_RESULT_ERR
 
 #endif // BW_TEST_COMMON_H

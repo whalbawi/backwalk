@@ -36,7 +36,7 @@ bool bw_backtrace(bw_backtrace_cb cb, void* arg) {
         print_frame(fnum, mod_addr, fname, sname);
         ++fnum;
 #endif
-        if (!cb(mod_addr, fname, sname, arg)) {
+        if (cb && !cb(mod_addr, fname, sname, arg)) {
             return false;
         }
     }
