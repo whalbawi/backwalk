@@ -6,10 +6,10 @@
 #endif
 
 #if BW_DEBUG_ENABLED
-#include <stdint.h>
-#include <stdio.h>
+#include <stdint.h>  // for uintptr_t
+#include <stdio.h>   // for fprintf, stderr
 
-#include "common.h"
+#include "common.h"  // for BW_UNUSED
 
 void print_frame(int fnum, uintptr_t addr, const char* fname, const char* sname) {
     BW_UNUSED(fprintf(stderr, "#%2d [%#08jx] %s:%s\n", fnum, addr, fname, sname));

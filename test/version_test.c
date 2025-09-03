@@ -1,8 +1,6 @@
 #include "backwalk/version.h"
 
-#include <stddef.h>
-
-#include "test.h"
+#include "test.h"  // for TEST, TEST_ASSERT_NE_CHAR, TEST_ASSERT_NONNULL
 
 TEST(populated) {
     const char* version = bw_version();

@@ -20,6 +20,8 @@ AlwaysBreakTemplateDeclarations: Yes
 
 InsertNewlineAtEOF: true
 
+AlignTrailingComments: Leave
+
 IncludeIsMainRegex: "(_test)?$"
 IncludeBlocks: Regroup
 SortIncludes: true

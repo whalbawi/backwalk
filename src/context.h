@@ -1,8 +1,8 @@
 #ifndef BW_CONTEXT_H
 #define BW_CONTEXT_H
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <stdbool.h>  // for bool
+#include <stdint.h>   // for uintptr_t
 
 enum { CONTEXT_DATA_LEN = 8 };
 
