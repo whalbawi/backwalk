@@ -39,10 +39,10 @@ IncludeCategories:
   - Regex:           '^<[^/]*>'                        # <other>
     Priority:        3
     SortPriority:    4
-  - Regex:           '^"gtest/.*"'                     # "gtest/gtest.h"
+  - Regex:           '^"test.*"'                       # "gtest.h"
     SortPriority:    8
     Priority:        5
-  - Regex:           '^"benchmark/.*"'                 # "gtest/gtest.h"
+  - Regex:           '^"benchmark/.*"'                 # "benchmark/benchmark.h"
     SortPriority:    9
     Priority:        6
   - Regex:           '^".*/'                           # "b/project"

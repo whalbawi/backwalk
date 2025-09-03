@@ -66,7 +66,7 @@ add_test(unit-tests backwalk-tests)
 
 function(bw_test TEST_NAME)
     add_executable(${TEST_NAME} ${BACKWALK_TEST_DIR}/${TEST_NAME}.c)
-    target_include_directories(${TEST_NAME} PRIVATE ${BACKWALK_SRC_DIR})
+    target_include_directories(${TEST_NAME} PRIVATE ${BACKWALK_SRC_DIR} ${BACKWALK_TEST_DIR})
     target_link_libraries(${TEST_NAME} backwalk)
     target_link_options(${TEST_NAME} PRIVATE -rdynamic)
     add_test(${TEST_NAME} ${TEST_NAME})
@@ -76,8 +76,14 @@ bw_test(noinline_test)
 target_compile_options(noinline_test BEFORE PRIVATE -fno-inline -fno-optimize-sibling-calls)
 
 
-file(GLOB_RECURSE HDR_FILES "${BACKWALK_SRC_DIR}/*.h" "${BACKWALK_INCLUDE_DIR}/*.h")
+file(GLOB_RECURSE 
+    HDR_FILES
+    "${BACKWALK_SRC_DIR}/*.h"
+    "${BACKWALK_INCLUDE_DIR}/*.h"
+    "${BACKWALK_TEST_DIR}/*.h"
+)
 add_custom_target(lint
+  COMMAND /usr/bin/clang-tidy -p "${CMAKE_BINARY_DIR}"  ${HDR_FILES}
   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run-clang-tidy.py -allow-no-checks -p=${CMAKE_BINARY_DIR}
   COMMENT "Running clang-tidy..."
 )
