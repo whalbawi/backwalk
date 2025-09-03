@@ -6,7 +6,7 @@
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace
 
-#include "test.h"               // for TEST, TEST_RUN, TEST_ASSERT_GE_INT
+#include "test.h"               // for TEST, TEST_RUN, TEST_ASSERT_GE_INT32
 
 // Test callback that always returns false (stops immediately)
 bool stop_immediately_cb(uintptr_t addr, const char* fname, const char* sname, void* arg) {
@@ -82,7 +82,7 @@ TEST(immediate_stop_callback, {
 
     // bw_backtrace returns false when callback returns false (early termination)
     TEST_ASSERT_FALSE(success); // Should return false since callback stops immediately
-    TEST_ASSERT_EQ_INT(call_count, 1); // Should be called exactly once
+    TEST_ASSERT_EQ_INT32(call_count, 1); // Should be called exactly once
 })
 
 TEST(null_fname_sname_handling, {
@@ -97,12 +97,12 @@ TEST(null_fname_sname_handling, {
     bool success = bw_backtrace(track_nulls_cb, &stats);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_INT(stats.total_calls, 1);
+    TEST_ASSERT_GE_INT32(stats.total_calls, 1);
 
     // Some fname/sname might be null or empty - this is implementation dependent
     // Just ensure we don't crash and get some reasonable data
-    TEST_ASSERT_GE_INT(stats.total_calls, stats.null_fname + stats.empty_fname);
-    TEST_ASSERT_GE_INT(stats.total_calls, stats.null_sname + stats.empty_sname);
+    TEST_ASSERT_GE_INT32(stats.total_calls, stats.null_fname + stats.empty_fname);
+    TEST_ASSERT_GE_INT32(stats.total_calls, stats.null_sname + stats.empty_sname);
 })
 
 TEST(very_deep_stack, {
@@ -113,7 +113,7 @@ TEST(very_deep_stack, {
     bool success = deep_recursion(recursion_depth, &max_frames);
 
     TEST_ASSERT_TRUE(success); // Returns true since count_all_frames_cb counts all frames
-    TEST_ASSERT_GE_INT(max_frames, recursion_depth); // Should see at least the recursive depth
+    TEST_ASSERT_GE_INT32(max_frames, recursion_depth); // Should see at least the recursive depth
 })
 
 // Test with different callback argument types
@@ -169,7 +169,7 @@ TEST(callback_modifies_arg, {
     bool success = bw_backtrace(modify_arg_cb, &value);
 
     TEST_ASSERT_TRUE(success); // Returns false since callback returns false
-    TEST_ASSERT_GE_INT(value, 5 + expected_increment); // Should be modified by callback
+    TEST_ASSERT_GE_INT32(value, 5 + expected_increment); // Should be modified by callback
 })
 
 // Test with function pointers and indirect calls

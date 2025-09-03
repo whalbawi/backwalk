@@ -1,11 +1,11 @@
 #include <stdbool.h>            // for bool, true
 #include <stdint.h>             // for uintptr_t
-#include <time.h>               // for timespec, clock_gettime, CLOCK_MONOTONIC
+#include <time.h>               // for clock_gettime, timespec, CLOCK_MONOTONIC
 
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace
 
-#include "test.h"               // for TEST_ASSERT_TRUE, TEST, TEST_ASSERT_G...
+#include "test.h"               // for TEST, TEST_ASSERT_GE_INT32, TEST_ASSE...
 
 // Simple counter callback for performance testing
 bool count_callback(uintptr_t addr, const char* fname, const char* sname, void* arg) {
@@ -60,24 +60,21 @@ TEST(repeated_backtrace_calls, {
     }
 
     // Should have gotten consistent results
-    TEST_ASSERT_GE_INT(total_frames, iterations); // At least one frame per iteration
+    TEST_ASSERT_GE_INT32(total_frames, iterations); // At least one frame per iteration
 
     // Average should be reasonable (between 1 and 50 frames per call)
     int average = total_frames / iterations;
-    TEST_ASSERT_GE_INT(average, 1);
-    TEST_ASSERT_GE_INT(50, average);
+    TEST_ASSERT_GE_INT32(average, 1);
+    TEST_ASSERT_GE_INT32(50, average);
 })
 
 TEST(backtrace_performance_basic, {
     const int iterations = 1000;
-    const long max_elapsed_ns = 100000000L; // 100ms in nanoseconds
+    const long max_elapsed_ns = 50L * 1000 * 1000; // 50ms in nanoseconds
 
     struct timespec start_time;
     struct timespec end_time;
-    int retval = clock_gettime(CLOCK_MONOTONIC, &start_time);
-    if (retval != 0) {
-        TEST_ERROR();
-    }
+    TEST_ERROR_NONZERO(clock_gettime(CLOCK_MONOTONIC, &start_time));
 
     for (int i = 0; i < iterations; i++) {
         int count = 0;
@@ -85,17 +82,14 @@ TEST(backtrace_performance_basic, {
         TEST_ASSERT_TRUE(success);
     }
 
-    retval = clock_gettime(CLOCK_MONOTONIC, &end_time);
-    if (retval != 0) {
-        TEST_ERROR();
-    }
+    TEST_ERROR_NONZERO(clock_gettime(CLOCK_MONOTONIC, &end_time));
 
     // Calculate elapsed time in nanoseconds
     long elapsed_ns = ((end_time.tv_sec - start_time.tv_sec) * 1000000000L) +
                       (end_time.tv_nsec - start_time.tv_nsec);
 
     // Should complete reasonably quickly (less than 100ms for 1000 iterations)
-    TEST_ASSERT_TRUE(elapsed_ns < max_elapsed_ns);
+    TEST_ASSERT_LE_INT64(elapsed_ns, max_elapsed_ns);
 })
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -122,7 +116,7 @@ TEST(callback_with_significant_work, {
     bool success = bw_backtrace(work_callback, &total_work);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_INT(total_work, 0); // Should have done some work
+    TEST_ASSERT_GE_INT32(total_work, 0); // Should have done some work
 })
 
 // Test memory usage doesn't grow with repeated calls
@@ -137,7 +131,7 @@ TEST(memory_stability, {
 
         // Every 100 iterations, do a quick sanity check
         if (i % 100 == 99) {
-            TEST_ASSERT_GE_INT(count, 1);
+            TEST_ASSERT_GE_INT32(count, 1);
         }
     }
 })

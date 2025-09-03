@@ -6,7 +6,7 @@
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace
 
-#include "test.h"               // for TEST, TEST_ASSERT_GE_INT, TEST_ASSERT...
+#include "test.h"               // for TEST, TEST_ASSERT_GE_INT32, TEST_ASSE...
 
 #define MK_SNAME_EXP(ctx, i, fname)                                                                \
     do {                                                                                           \
@@ -52,7 +52,7 @@ TEST(success, {
     MK_SNAME_EXP(ctx, 2, "success");
 
     bool success = func_one(&ctx);
-    TEST_ASSERT_GE_INT(ctx.fnum, ctx.fnum_max);
+    TEST_ASSERT_GE_INT32(ctx.fnum, ctx.fnum_max);
     TEST_ASSERT_TRUE(success);
 })
 

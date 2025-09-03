@@ -1,4 +1,4 @@
-#include <pthread.h>            // for pthread_create, pthread_join, pthread_t
+#include <pthread.h>            // for pthread_join, pthread_create, pthread_t
 #include <stdbool.h>            // for bool, false, true
 #include <stdint.h>             // for uintptr_t
 #include <string.h>             // for memset
@@ -7,7 +7,7 @@
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace, bw_backtrace_cb
 
-#include "test.h"               // for TEST_ASSERT_EQ_INT, TEST_ERROR, TEST
+#include "test.h"               // for TEST_ERROR_NONZERO, TEST, TEST_ASSERT...
 
 enum { MAX_THREADS = 8 };
 enum { ITERATIONS_PER_THREAD = 100 };
@@ -136,20 +136,16 @@ TEST(basic_multithreaded_backtrace, {
 
     // Create threads
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_create(&threads[i], NULL, backtrace_thread_func, &thread_data[i]);
-        TEST_ASSERT_EQ_INT(result, 0);
+        int retval = pthread_create(&threads[i], NULL, backtrace_thread_func, &thread_data[i]);
+        TEST_ERROR_NONZERO(retval);
     }
 
     // Join threads
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_join(threads[i], NULL);
-        if (result != 0) {
-            TEST_ERROR();
-        }
+        TEST_ERROR_NONZERO(pthread_join(threads[i], NULL));
 
-        TEST_ASSERT_EQ_INT(result, 0);
         TEST_ASSERT_TRUE(thread_data[i].success);
-        TEST_ASSERT_GE_INT(thread_data[i].frames_found, thread_data[i].iterations);
+        TEST_ASSERT_GE_INT32(thread_data[i].frames_found, thread_data[i].iterations);
     }
 })
 
@@ -169,18 +165,13 @@ TEST(recursive_multithreaded_backtrace, {
 
     // Create threads with recursive calls
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_create(&threads[i], NULL, recursive_backtrace_thread, &thread_data[i]);
-        TEST_ASSERT_EQ_INT(result, 0);
+        int retval = pthread_create(&threads[i], NULL, recursive_backtrace_thread, &thread_data[i]);
+        TEST_ERROR_NONZERO(retval);
     }
 
     // Join threads
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_join(threads[i], NULL);
-        if (result != 0) {
-            TEST_ERROR();
-        }
-
-        TEST_ASSERT_EQ_INT(result, 0);
+        TEST_ERROR_NONZERO(pthread_join(threads[i], NULL));
         TEST_ASSERT_TRUE(thread_data[i].success);
     }
 })
@@ -201,18 +192,13 @@ TEST(function_pointer_multithreaded, {
 
     // Create threads using function pointers
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_create(&threads[i], NULL, function_pointer_thread, &thread_data[i]);
-        TEST_ASSERT_EQ_INT(result, 0);
+        int retval = pthread_create(&threads[i], NULL, function_pointer_thread, &thread_data[i]);
+        TEST_ERROR_NONZERO(retval);
     }
 
     // Join threads
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_join(threads[i], NULL);
-        if (result != 0) {
-            TEST_ERROR();
-        }
-
-        TEST_ASSERT_EQ_INT(result, 0);
+        TEST_ERROR_NONZERO(pthread_join(threads[i], NULL));
         TEST_ASSERT_TRUE(thread_data[i].success);
     }
 })
@@ -234,19 +220,14 @@ TEST(high_contention_backtrace, {
 
     // Create many threads simultaneously
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_create(&threads[i], NULL, backtrace_thread_func, &thread_data[i]);
-        TEST_ASSERT_EQ_INT(result, 0);
+        int retval = pthread_create(&threads[i], NULL, backtrace_thread_func, &thread_data[i]);
+        TEST_ERROR_NONZERO(retval);
     }
 
     // Join all threads
     int successful_threads = 0;
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_join(threads[i], NULL);
-        if (result != 0) {
-            TEST_ERROR();
-        }
-
-        TEST_ASSERT_EQ_INT(result, 0);
+        TEST_ERROR_NONZERO(pthread_join(threads[i], NULL));
 
         if (thread_data[i].success) {
             successful_threads++;
@@ -254,7 +235,7 @@ TEST(high_contention_backtrace, {
     }
 
     // At least most threads should succeed
-    TEST_ASSERT_GE_INT(successful_threads, num_threads - 1);
+    TEST_ASSERT_GE_INT32(successful_threads, num_threads - 1);
 })
 
 // Test thread-local data collection
@@ -296,29 +277,23 @@ TEST(thread_local_data_collection, {
 
     // Initialize stats
     for (int i = 0; i < num_threads; i++) {
-        void* result = memset(&stats[i], 0, sizeof(stats[i]));
-        if (result != &stats[i]) {
-            TEST_ERROR();
-        }
+        BW_UNUSED(memset(&stats[i], 0, sizeof(stats[i])));
     }
 
     // Create data collection threads
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_create(&threads[i], NULL, data_collection_thread, &stats[i]);
-        TEST_ASSERT_EQ_INT(result, 0);
+        int retval = pthread_create(&threads[i], NULL, data_collection_thread, &stats[i]);
+        TEST_ERROR_NONZERO(retval);
     }
 
     // Join threads and verify data
     for (int i = 0; i < num_threads; i++) {
-        int result = pthread_join(threads[i], NULL);
-        if (result != 0) {
-            TEST_ERROR();
-        }
+        TEST_ERROR_NONZERO(pthread_join(threads[i], NULL));
 
         TEST_ASSERT_TRUE(stats[i].success);
 
         // Verify thread collected some data
-        TEST_ASSERT_GE_INT(stats[i].total_calls, 5); // At least 5 calls * frames per call
+        TEST_ASSERT_GE_INT32(stats[i].total_calls, 5); // At least 5 calls * frames per call
         TEST_ASSERT_TRUE(stats[i].thread_id != 0); // Thread ID should be set
     }
 })
