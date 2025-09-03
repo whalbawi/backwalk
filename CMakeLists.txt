@@ -42,6 +42,7 @@ configure_file(${BACKWALK_SRC_DIR}/version.c.in ${CMAKE_CURRENT_BINARY_DIR}/gen/
 set(BACKWALK_SRC_LIST
     ${BACKWALK_SRC_DIR}/backwalk.c
     ${BACKWALK_SRC_DIR}/context.c
+    ${BACKWALK_SRC_DIR}/asm/context_aarch64.S
     ${BACKWALK_SRC_DIR}/asm/context_x64.S
     ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c
 )
