@@ -43,11 +43,29 @@ jobs:
     - name: Install dependencies
       run: ./tools/install-deps.sh
 
-    - name: Generate Build System
+    - name: Generate build system
       run: cmake -B ${{github.workspace}}/build
 
     - name: Run clang-tidy
       run: cmake --build ${{github.workspace}}/build -t lint
+
+  headers:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ./tools/install-deps.sh
+
+    - name: Generate build system
+      run: cmake -B ${{github.workspace}}/build -DBW_IWYU=ON
+
+    - name: Run iwyu
+      run: cmake --build ${{github.workspace}}/build -t iwyu
 
   build:
     runs-on: ${{matrix.os}}
@@ -62,7 +80,7 @@ jobs:
     - name: Install dependencies
       run: ./tools/install-deps.sh
 
-    - name: Generate Build System
+    - name: Generate build system
       run: |
         if [ "${{ matrix.compiler }}" = "clang" ]; then
           cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++

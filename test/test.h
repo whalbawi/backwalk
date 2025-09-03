@@ -1,9 +1,10 @@
 #ifndef BW_TEST_COMMON_H
 #define BW_TEST_COMMON_H
 
-#include <stdio.h>
+#include <stdbool.h>  // for true
+#include <stdio.h>    // for fprintf, stderr, NULL
 
-#include "common.h"
+#include "common.h"   // for BW_UNUSED
 
 typedef enum {
     TEST_RESULT_OK = 0,

@@ -46,6 +46,13 @@ set(BACKWALK_SRC_LIST
     ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c
 )
 
+file(GLOB_RECURSE ASM_FILES "${BACKWALK_SRC_DIR}/asm/*")
+message(${ASM_FILES})
+if (BW_IWYU)
+    list(REMOVE_ITEM BACKWALK_SRC_LIST ${ASM_FILES})
+endif()
+
+
 add_library(backwalk ${BACKWALK_SRC_LIST})
 target_include_directories(backwalk PUBLIC ${BACKWALK_INCLUDE_DIR})
 if (BW_DEBUG_ENABLED)
@@ -80,4 +87,22 @@ add_custom_target(lint
 add_custom_target(fmt
   COMMAND git clang-format --diff
   COMMENT "Running clang-format..."
+)
+
+add_custom_target(iwyu
+  COMMAND iwyu_tool -p ${CMAKE_BINARY_DIR} --
+  -Xiwyu --check_also=${BACKWALK_SRC_DIR}/*.h
+  -Xiwyu --check_also=${BACKWALK_TEST_DIR}/*.h
+  -Xiwyu --update_comments
+  -Xiwyu --error=1
+  COMMENT "Running iwyu..."
+)
+
+add_custom_target(iwyu-fix
+  COMMAND iwyu_tool -p ${CMAKE_BINARY_DIR} --
+  -Xiwyu --check_also=${BACKWALK_SRC_DIR}/*.h
+  -Xiwyu --check_also=${BACKWALK_TEST_DIR}/*.h
+  -Xiwyu --update_comments
+  | fix_include --update_comments --nosafe_headers --noreorder
+  COMMENT "Running iwyu and applying suggestions..."
 )

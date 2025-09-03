@@ -2,12 +2,13 @@
 #define _GNU_SOURCE
 #include "backwalk/backwalk.h"
 
-#include <dlfcn.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <dlfcn.h>    // for dladdr, Dl_info
+#include <stdbool.h>  // for bool, false, true
+#include <stddef.h>   // for NULL
+#include <stdint.h>   // for uintptr_t
 
-#include "context.h"
-#include "debug.h"
+#include "context.h"  // for context_get_ip, context_init, context_step, con...
+#include "debug.h"    // for BW_DEBUG_ENABLED
 
 bool bw_backtrace(bw_backtrace_cb cb, void* arg) {
     context_t ctx;
