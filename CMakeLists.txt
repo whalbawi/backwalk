@@ -46,23 +46,11 @@ set(BACKWALK_SRC_LIST
     ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c
 )
 
-# Test files
-set(BACKWALK_TEST_LIST
-    ${BACKWALK_TEST_DIR}/main.c
-    ${BACKWALK_TEST_DIR}/version_test.c
-)
-
 add_library(backwalk ${BACKWALK_SRC_LIST})
 target_include_directories(backwalk PUBLIC ${BACKWALK_INCLUDE_DIR})
 if (BW_DEBUG_ENABLED)
     target_compile_definitions(backwalk PRIVATE BW_DEBUG_ENABLED)
 endif()
-
-add_executable(backwalk-tests ${BACKWALK_TEST_LIST})
-target_include_directories(backwalk-tests PRIVATE ${BACKWALK_SRC_DIR})
-target_link_libraries(backwalk-tests backwalk)
-target_link_options(backwalk-tests PRIVATE -rdynamic)
-add_test(unit-tests backwalk-tests)
 
 function(bw_test TEST_NAME)
     add_executable(${TEST_NAME} ${BACKWALK_TEST_DIR}/${TEST_NAME}.c)
@@ -74,6 +62,7 @@ endfunction()
 
 bw_test(noinline_test)
 target_compile_options(noinline_test BEFORE PRIVATE -fno-inline -fno-optimize-sibling-calls)
+bw_test(version_test)
 
 
 file(GLOB_RECURSE 

@@ -2,11 +2,20 @@
 
 #include <stddef.h>
 
-int version_test(void) {
-    const char* version = bw_version();
-    if (version == NULL || *version == '\0') {
-        return 1;
-    }
+#include "test.h"
 
-    return 0;
+TEST(populated) {
+    const char* version = bw_version();
+    TEST_ASSERT_NONNULL(version);
+    TEST_ASSERT_NE_CHAR(version[0], '\0');
+
+    TEST_OK();
+}
+
+int main(void) {
+    TEST_INIT("version");
+
+    TEST_RUN(populated);
+
+    TEST_EXIT();
 }

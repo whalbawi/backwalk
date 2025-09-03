@@ -11,14 +11,14 @@ typedef enum {
     TEST_RESULT_ERR = 2,
 } test_result_t;
 
-#define TEST_RESULT test_result_t
+#define TEST_RESULT_ test_result_t
 
 #define TEST_SUITENAME_ tests_suite_name
 #define TEST_FINAL_RESULT_ tests_final_result
 
 #define TEST_INIT_(suite_name, final_result)                                                       \
     const char* tests_suite_name = suite_name;                                                     \
-    TEST_RESULT final_result = TEST_RESULT_OK
+    TEST_RESULT_ final_result = TEST_RESULT_OK
 
 #define TEST_FINAL_RESULT_UPDATE_(test_result)                                                     \
     do {                                                                                           \
@@ -46,7 +46,7 @@ typedef enum {
 #define TEST_RUN(test_function)                                                                    \
     do {                                                                                           \
         BW_UNUSED(fprintf(stderr, "RUN: %s." #test_function "\n", TEST_SUITENAME_));               \
-        TEST_RESULT test_result = (test_function)();                                               \
+        TEST_RESULT_ test_result = (test_function)();                                              \
         TEST_FINAL_RESULT_UPDATE_(test_result);                                                    \
         const char* result_str = NULL;                                                             \
         switch (test_result) {                                                                     \
@@ -66,7 +66,7 @@ typedef enum {
             fprintf(stderr, "END: %s." #test_function " %s\n", TEST_SUITENAME_, result_str));      \
     } while (0)
 
-#define TEST(test_name) TEST_RESULT test_name(void)
+#define TEST(test_name) TEST_RESULT_ test_name(void)
 
 #define TEST_LOG(fmt, ...)                                                                         \
     do {                                                                                           \
@@ -105,11 +105,25 @@ typedef enum {
 
 #define TEST_ASSERT_TRUE(expr) TEST_ASSERT_EQ_BOOL_(expr, true)
 
-#define TEST_ASSERT_EQ_INT(val, exp) TEST_ASSERT_OP_(val, exp, (val) == (exp), "==", "%d")
+#define TEST_ASSERT_NONNULL(expr)                                                                  \
+    do {                                                                                           \
+        if ((expr) == NULL) {                                                                      \
+            TEST_LOG("assertion failed: %s != NULL", #expr);                                       \
+            return TEST_RESULT_FAIL;                                                               \
+        }                                                                                          \
+    } while (0)
+
+#define TEST_ASSERT_EQ_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) == (exp), "==", fmt)
+#define TEST_ASSERT_EQ_INT(val, exp) TEST_ASSERT_EQ_(val, exp, "%d")
+#define TEST_ASSERT_EQ_CHAR(val, exp) TEST_ASSERT_EQ_(val, exp, "%c")
+
+#define TEST_ASSERT_NE_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) != (exp), "!=", fmt)
+#define TEST_ASSERT_NE_CHAR(val, exp) TEST_ASSERT_NE_(val, exp, "%c")
+
 #define TEST_ASSERT_GE_INT(val, exp) TEST_ASSERT_OP_(val, exp, (val) >= (exp), ">=", "%d")
 
-#define TEST_OK() return TEST_RESULT_OK;
+#define TEST_OK() return TEST_RESULT_OK
 
-#define TEST_FAIL() return TEST_RESULT_FAIL;
+#define TEST_FAIL() return TEST_RESULT_FAIL
 
 #endif // BW_TEST_COMMON_H
