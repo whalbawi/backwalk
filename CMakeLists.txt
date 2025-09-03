@@ -71,6 +71,12 @@ endfunction()
 bw_test(noinline_test)
 target_compile_options(noinline_test BEFORE PRIVATE -fno-inline -fno-optimize-sibling-calls)
 bw_test(version_test)
+bw_test(backtrace_test)
+bw_test(edge_cases_test)
+target_compile_options(edge_cases_test BEFORE PRIVATE -fno-optimize-sibling-calls)
+bw_test(stress_test)
+bw_test(threading_test)
+target_link_libraries(threading_test pthread)
 
 
 file(GLOB_RECURSE 

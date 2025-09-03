@@ -43,7 +43,7 @@ bool func_one(context_t* ctx) {
     return func_two(ctx);
 }
 
-TEST(success) {
+TEST(success, {
     context_t ctx;
     ctx.fnum = 0;
     ctx.fnum_max = 3;
@@ -54,9 +54,7 @@ TEST(success) {
     bool success = func_one(&ctx);
     TEST_ASSERT_GE_INT(ctx.fnum, ctx.fnum_max);
     TEST_ASSERT_TRUE(success);
-
-    TEST_OK();
-}
+})
 
 int main(void) {
     TEST_INIT("noinline");
