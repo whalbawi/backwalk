@@ -122,8 +122,10 @@ typedef enum {
     } while (0)
 
 #define TEST_ASSERT_EQ_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) == (exp), "==", fmt)
-#define TEST_ASSERT_EQ_INT32(val, exp) TEST_ASSERT_EQ_(val, exp, "%" PRId32)
 #define TEST_ASSERT_EQ_CHAR(val, exp) TEST_ASSERT_EQ_(val, exp, "%c")
+#define TEST_ASSERT_EQ_INT32(val, exp) TEST_ASSERT_EQ_(val, exp, "%" PRId32)
+#define TEST_ASSERT_EQ_INT64(val, exp) TEST_ASSERT_EQ_(val, exp, "%" PRId64)
+#define TEST_ASSERT_EQ_SIZE(val, exp) TEST_ASSERT_EQ_(val, exp, "%zu")
 
 #define TEST_ASSERT_NE_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) != (exp), "!=", fmt)
 #define TEST_ASSERT_NE_CHAR(val, exp) TEST_ASSERT_NE_(val, exp, "%c")
@@ -131,10 +133,12 @@ typedef enum {
 #define TEST_ASSERT_GE_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) >= (exp), ">=", fmt)
 #define TEST_ASSERT_GE_INT32(val, exp) TEST_ASSERT_GE_(val, exp, "%" PRId32)
 #define TEST_ASSERT_GE_INT64(val, exp) TEST_ASSERT_GE_(val, exp, "%" PRId64)
+#define TEST_ASSERT_GE_SIZE(val, exp) TEST_ASSERT_GE_(val, exp, "%zu")
 
 #define TEST_ASSERT_LE_(val, exp, fmt) TEST_ASSERT_OP_(val, exp, (val) <= (exp), "<=", fmt)
 #define TEST_ASSERT_LE_INT32(val, exp) TEST_ASSERT_LE_(val, exp, "%" PRId32)
 #define TEST_ASSERT_LE_INT64(val, exp) TEST_ASSERT_LE_(val, exp, "%" PRId64)
+#define TEST_ASSERT_LE_SIZE(val, exp) TEST_ASSERT_LE_(val, exp, "%zu")
 
 #define TEST_OK() return TEST_RESULT_OK
 

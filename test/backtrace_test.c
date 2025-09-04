@@ -1,86 +1,111 @@
-#include <stdbool.h>            // for bool, true
-#include <stddef.h>             // for NULL
+#include <stdbool.h>            // for bool, true, false
+#include <stddef.h>             // for size_t, NULL
 #include <stdint.h>             // for uintptr_t
-#include <string.h>             // for strlen, strstr
+#include <string.h>             // for strlen, strcmp
 
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace
 
-#include "test.h"               // for TEST, TEST_RUN, TEST_ASSERT_TRUE, TES...
+#include "test.h"               // for TEST, TEST_ASSERT_TRUE, TEST_RUN, TES...
+
+enum { SNAME_ENTRIES_MAX = 16 };
+
+#define MK_SNAME_EXP(ctx, i, fname)                                                                \
+    do {                                                                                           \
+        (ctx)->sname_exp[i] = fname;                                                               \
+        (ctx)->sname_exp_len[i] = sizeof(fname);                                                   \
+    } while (0)
 
 typedef struct {
-    int frame_count;
-    bool found_expected_func;
-    const char* expected_func;
-} backtrace_context_t;
+    size_t fnum;
+    size_t sname_entries_len;
+    const char* sname_exp[SNAME_ENTRIES_MAX];
+    size_t sname_exp_len[SNAME_ENTRIES_MAX];
+    bool sname_found[SNAME_ENTRIES_MAX];
+} context_t;
 
-bool count_frames_cb(uintptr_t addr, const char* fname, const char* sname, void* arg) {
+bool validate_backtrace(uintptr_t addr, const char* fname, const char* sname, void* arg) {
     BW_UNUSED(addr);
     BW_UNUSED(fname);
 
-    backtrace_context_t* ctx = (backtrace_context_t*)arg;
-    ctx->frame_count++;
+    context_t* ctx = arg;
+    size_t fnum = ctx->fnum++;
 
-    if (sname && ctx->expected_func && strstr(sname, ctx->expected_func)) {
-        ctx->found_expected_func = true;
+    if (fnum < ctx->sname_entries_len && strcmp(sname, ctx->sname_exp[fnum]) == 0) {
+        ctx->sname_found[fnum] = true;
     }
 
-    return true; // Continue iterating
+    return true;
 }
+
+typedef struct {
+    size_t fnum;
+    size_t fnum_max;
+} stop_context_t;
 
 bool stop_after_n_frames_cb(uintptr_t addr, const char* fname, const char* sname, void* arg) {
     BW_UNUSED(addr);
     BW_UNUSED(fname);
     BW_UNUSED(sname);
 
-    int* count = (int*)arg;
-    (*count)++;
+    stop_context_t* ctx = arg;
+    if (ctx->fnum == ctx->fnum_max) {
+        return false;
+    }
+    ++ctx->fnum;
 
-    return *count < 3; // Stop after 3 frames
+    return true;
 }
 
-__attribute__((noinline)) bool deep_function_3(backtrace_context_t* ctx) {
-    return bw_backtrace(count_frames_cb, ctx);
+__attribute__((noinline)) bool deep_function_3(context_t* ctx) {
+    return bw_backtrace(validate_backtrace, ctx);
 }
 
-__attribute__((noinline)) bool deep_function_2(backtrace_context_t* ctx) {
+__attribute__((noinline)) bool deep_function_2(context_t* ctx) {
     return deep_function_3(ctx);
 }
 
-__attribute__((noinline)) bool deep_function_1(backtrace_context_t* ctx) {
+__attribute__((noinline)) bool deep_function_1(context_t* ctx) {
     return deep_function_2(ctx);
 }
 
 TEST(basic_backtrace, {
-    backtrace_context_t ctx = {0};
-    ctx.expected_func = "basic_backtrace";
+    context_t ctx = {0};
+    MK_SNAME_EXP(&ctx, 0, "basic_backtrace");
+    ctx.sname_entries_len = 1;
 
-    bool success = bw_backtrace(count_frames_cb, &ctx);
+    bool success = bw_backtrace(validate_backtrace, &ctx);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_INT32(ctx.frame_count, 1);
-    TEST_ASSERT_TRUE(ctx.found_expected_func);
+    TEST_ASSERT_GE_SIZE(ctx.fnum, 3L);
+    TEST_ASSERT_TRUE(ctx.sname_found[0]);
 })
 
 TEST(deep_stack_backtrace, {
-    backtrace_context_t ctx = {0};
-    ctx.expected_func = "deep_function"; // Look for any deep_function
+    context_t ctx = {0};
+
+    MK_SNAME_EXP(&ctx, 0, "deep_function_3");
+    MK_SNAME_EXP(&ctx, 1, "deep_function_2");
+    MK_SNAME_EXP(&ctx, 2, "deep_function_1");
+    ctx.sname_entries_len = 3;
 
     bool success = deep_function_1(&ctx);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_INT32(ctx.frame_count, 3); // Should have at least a few frames
-    // Note: Function name visibility depends on debug symbols and optimization
-    BW_UNUSED(ctx.found_expected_func); // Don't assert on this - it's implementation dependent
+    TEST_ASSERT_GE_SIZE(ctx.fnum, ctx.sname_entries_len);
+    for (size_t i = 0; i < ctx.sname_entries_len; ++i) {
+        TEST_ASSERT_TRUE(ctx.sname_found[i]);
+    }
 })
 
 TEST(early_termination, {
-    int frame_count = 0;
+    stop_context_t ctx = {0};
+    ctx.fnum_max = 3;
 
-    bool success = bw_backtrace(stop_after_n_frames_cb, &frame_count);
+    bool success = bw_backtrace(stop_after_n_frames_cb, &ctx);
 
     TEST_ASSERT_FALSE(success); // Returns false since callback stops after 3 frames
-    TEST_ASSERT_EQ_INT32(frame_count, 3); // Should stop after exactly 3 frames
+    TEST_ASSERT_EQ_SIZE(ctx.fnum, ctx.fnum_max); // Should stop after exactly 3 frames
 })
 
 TEST(null_callback, {
