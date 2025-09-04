@@ -60,23 +60,25 @@ if (BW_DEBUG_ENABLED)
     target_compile_definitions(backwalk PRIVATE BW_DEBUG_ENABLED)
 endif()
 
+install(TARGETS backwalk ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY ${BACKWALK_INCLUDE_DIR}/ DESTINATION include)
+
 function(bw_test TEST_NAME)
     add_executable(${TEST_NAME} ${BACKWALK_TEST_DIR}/${TEST_NAME}.c)
     target_include_directories(${TEST_NAME} PRIVATE ${BACKWALK_SRC_DIR} ${BACKWALK_TEST_DIR})
-    target_link_libraries(${TEST_NAME} backwalk)
+    target_link_libraries(${TEST_NAME} PRIVATE backwalk)
     target_link_options(${TEST_NAME} PRIVATE -rdynamic)
     add_test(${TEST_NAME} ${TEST_NAME})
 endfunction()
 
-bw_test(noinline_test)
-target_compile_options(noinline_test BEFORE PRIVATE -fno-inline -fno-optimize-sibling-calls)
 bw_test(version_test)
 bw_test(backtrace_test)
+target_compile_options(backtrace_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 bw_test(edge_cases_test)
 target_compile_options(edge_cases_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 bw_test(stress_test)
 bw_test(threading_test)
-target_link_libraries(threading_test pthread)
+target_link_libraries(threading_test PRIVATE pthread)
 
 
 file(GLOB_RECURSE 
