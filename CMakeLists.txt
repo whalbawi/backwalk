@@ -48,7 +48,6 @@ set(BACKWALK_SRC_LIST
 )
 
 file(GLOB_RECURSE ASM_FILES "${BACKWALK_SRC_DIR}/asm/*")
-message(${ASM_FILES})
 if (BW_IWYU)
     list(REMOVE_ITEM BACKWALK_SRC_LIST ${ASM_FILES})
 endif()
@@ -64,14 +63,14 @@ install(TARGETS backwalk ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY ${BACKWALK_INCLUDE_DIR}/ DESTINATION include)
 
 function(bw_test TEST_NAME)
-    add_executable(${TEST_NAME} ${BACKWALK_TEST_DIR}/${TEST_NAME}.c)
+    file(GLOB TEST_FILE "${BACKWALK_TEST_DIR}/${TEST_NAME}.c*")
+    add_executable(${TEST_NAME} ${TEST_FILE})
     target_include_directories(${TEST_NAME} PRIVATE ${BACKWALK_SRC_DIR} ${BACKWALK_TEST_DIR})
     target_link_libraries(${TEST_NAME} PRIVATE backwalk)
     target_link_options(${TEST_NAME} PRIVATE -rdynamic)
     add_test(${TEST_NAME} ${TEST_NAME})
 endfunction()
 
-bw_test(version_test)
 bw_test(backtrace_test)
 target_compile_options(backtrace_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 bw_test(edge_cases_test)
@@ -79,7 +78,10 @@ target_compile_options(edge_cases_test BEFORE PRIVATE -fno-optimize-sibling-call
 bw_test(stress_test)
 bw_test(threading_test)
 target_link_libraries(threading_test PRIVATE pthread)
+bw_test(version_test)
 
+bw_test(cpp_test)
+target_compile_options(cpp_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 
 file(GLOB_RECURSE 
     HDR_FILES

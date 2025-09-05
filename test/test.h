@@ -1,11 +1,15 @@
 #ifndef BW_TEST_COMMON_H
 #define BW_TEST_COMMON_H
 
+#ifdef __cplusplus
+#include <cinttypes>  // for PRId32, PRId64
+#else
 #include <inttypes.h>  // for PRId32, PRId64
-#include <stdbool.h>   // for true, false
-#include <stdio.h>     // for fprintf, stderr, NULL
+#include <stdbool.h>   // for false, true
+#endif
+#include <stdio.h>    // for fprintf, stderr, NULL
 
-#include "common.h"    // for BW_UNUSED
+#include "common.h"   // for BW_UNUSED
 
 typedef enum {
     TEST_RESULT_OK = 0,
@@ -48,7 +52,7 @@ typedef enum {
 #define TEST_RUN(test_function)                                                                    \
     do {                                                                                           \
         BW_UNUSED(fprintf(stderr, "RUN: %s.%s\n", TEST_SUITENAME_, #test_function));               \
-        TEST_RESULT_ test_result = (test_function)();                                              \
+        const TEST_RESULT_ test_result = (test_function)();                                        \
         TEST_FINAL_RESULT_UPDATE_(test_result);                                                    \
         const char* result_str = NULL;                                                             \
         switch (test_result) {                                                                     \
@@ -69,14 +73,14 @@ typedef enum {
     } while (0)
 
 #define TEST(test_name, test_body)                                                                 \
-    TEST_RESULT_ test_name(void) {                                                                 \
+    __attribute__((noinline)) TEST_RESULT_ test_name(void) {                                       \
         test_body;                                                                                 \
         TEST_OK();                                                                                 \
     }
 
 #define TEST_LOG_(fmt, ...)                                                                        \
     do {                                                                                           \
-        int res =                                                                                  \
+        const int res =                                                                            \
             fprintf(stderr, "%s:%d\n\t" fmt "\n", __FILE__, __LINE__ __VA_OPT__(, ) __VA_ARGS__);  \
         BW_UNUSED(res);                                                                            \
     } while (0)

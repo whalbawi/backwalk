@@ -32,7 +32,7 @@ IncludeCategories:
   - Regex:           '^<[a-z]+/.*\.h>'                 # <sys/event.h>
     SortPriority:    2
     Priority:        1
-  - Regex:           '^<c(errno|signal|string|std).*>' # <cstring>
+  - Regex:           '^<c(errno|inttypes|signal|string|std).*>' # <cstring>
     Priority:        2
     SortPriority:    3
   - Regex:           '^<.*/'                           # <a/other>
