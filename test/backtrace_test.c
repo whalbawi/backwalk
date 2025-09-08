@@ -141,8 +141,8 @@ TEST(symbol_resolution, {
     TEST_ASSERT_GE_INT32(valid_symbols, 1); // Should have at least some valid symbols
 })
 
-int main(void) {
-    TEST_INIT("backtrace");
+int main(int argc, char** argv) {
+    TEST_INIT("backtrace", argc, argv);
 
     TEST_RUN(basic_backtrace);
     TEST_RUN(deep_stack_backtrace);

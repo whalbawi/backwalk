@@ -192,8 +192,8 @@ TEST(function_pointer_backtrace, {
     TEST_ASSERT_FALSE(success); // Returns false since stop_immediately_cb returns false
 })
 
-int main(void) {
-    TEST_INIT("edge_cases");
+int main(int argc, char** argv) {
+    TEST_INIT("edge_cases", argc, argv);
 
     TEST_RUN(immediate_stop_callback);
     TEST_RUN(null_fname_sname_handling);

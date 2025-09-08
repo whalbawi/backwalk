@@ -8,8 +8,8 @@ TEST(populated, {
     TEST_ASSERT_NE_CHAR(version[0], '\0');
 })
 
-int main(void) {
-    TEST_INIT("version");
+int main(int argc, char** argv) {
+    TEST_INIT("version", argc, argv);
 
     TEST_RUN(populated);
 

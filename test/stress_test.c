@@ -136,8 +136,8 @@ TEST(memory_stability, {
     }
 })
 
-int main(void) {
-    TEST_INIT("stress");
+int main(int argc, char** argv) {
+    TEST_INIT("stress", argc, argv);
 
     TEST_RUN(repeated_backtrace_calls);
     TEST_RUN(backtrace_performance_basic);

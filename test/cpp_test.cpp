@@ -117,8 +117,8 @@ void bw_dbg_demangle_free(char* sname) {
 }
 }
 
-int main(void) {
-    TEST_INIT("cpp");
+int main(int argc, char** argv) {
+    TEST_INIT("cpp", argc, argv);
 
     TEST_RUN(test_ns::test_backtrace);
     TEST_RUN(test_ns::test_lambda_in_callstack);
