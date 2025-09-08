@@ -1,5 +1,6 @@
 // NOLINTBEGIN(misc-use-internal-linkage, cppcoreguidelines-pro-type-vararg)
 #include <cxxabi.h>             // for __cxa_demangle, abi
+#include <stdlib.h>             // for free
 
 #include <cstdint>              // for uintptr_t
 
@@ -89,20 +90,32 @@ TEST(test_lambda_cb, {
 
 TEST(test_demangle, {
     auto lambda = [](uintptr_t, const char*, const char* sname, void* arg) {
-        auto* demangle_fail = static_cast<int*>(arg);
-        auto* demangled = abi::__cxa_demangle(sname, nullptr, nullptr, demangle_fail);
+        auto* fail = static_cast<int*>(arg);
+        auto* demangled = abi::__cxa_demangle(sname, nullptr, nullptr, fail);
         BW_UNUSED(demangled);
 
         return false;
     };
 
-    int demangle_fail = 1;
-    auto retval = bw_backtrace(lambda, &demangle_fail);
+    int fail = 1;
+    auto retval = bw_backtrace(lambda, &fail);
     TEST_ASSERT_FALSE(retval);
-    TEST_ASSERT_EQ_INT32(demangle_fail, 0);
+    TEST_ASSERT_EQ_INT32(fail, 0);
 })
 
 } // namespace test_ns
+
+extern "C" {
+char* bw_dbg_demangle(const char* sname) {
+    int fail = 1;
+    auto* demangled = abi::__cxa_demangle(sname, nullptr, nullptr, &fail);
+    return fail == 0 ? demangled : nullptr;
+}
+
+void bw_dbg_demangle_free(char* sname) {
+    free(sname); // NOLINT(cppcoreguidelines-no-malloc)
+}
+}
 
 int main(void) {
     TEST_INIT("cpp");

@@ -8,15 +8,11 @@
 #include <stdint.h>   // for uintptr_t
 
 #include "context.h"  // for context_get_ip, context_init, context_step, con...
-#include "debug.h"    // for BW_DEBUG_ENABLED
+#include "debug.h"    // for BW_PRINT_FRAME
 
 bool bw_backtrace(bw_backtrace_cb cb, void* arg) {
     context_t ctx;
     context_init(&ctx);
-
-#if BW_DEBUG_ENABLED
-    int fnum = 0;
-#endif
 
     while (context_step(&ctx)) {
         uintptr_t ip = context_get_ip(&ctx);
@@ -32,10 +28,8 @@ bool bw_backtrace(bw_backtrace_cb cb, void* arg) {
         fname = info.dli_fname ? info.dli_fname : "?";
         sname = info.dli_sname ? info.dli_sname : "?";
 
-#if BW_DEBUG_ENABLED
-        print_frame(fnum, mod_addr, fname, sname);
-        ++fnum;
-#endif
+        BW_PRINT_FRAME(mod_addr, fname, sname);
+
         if (cb && !cb(mod_addr, fname, sname, arg)) {
             return false;
         }
