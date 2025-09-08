@@ -3,11 +3,14 @@
 
 #ifdef __cplusplus
 #include <cinttypes>  // for PRId32, PRId64
+#include <cstdio>    // for fprintf, stderr, NULL
+#include <cstring>
 #else
 #include <inttypes.h>  // for PRId32, PRId64
 #include <stdbool.h>   // for false, true
-#endif
 #include <stdio.h>    // for fprintf, stderr, NULL
+#include <string.h>
+#endif
 
 #include "common.h"   // for BW_UNUSED
 
@@ -19,12 +22,14 @@ typedef enum {
 
 #define TEST_RESULT_ test_result_t
 
-#define TEST_SUITENAME_ tests_suite_name
-#define TEST_FINAL_RESULT_ tests_final_result
+#define TEST_SUITENAME_ test_suite_name
+#define TEST_FINAL_RESULT_ test_final_result
+#define TEST_FILTER_TEST_PREFIX_ test_filter_test_prefix
 
-#define TEST_INIT_(suite_name, final_result)                                                       \
-    const char* tests_suite_name = suite_name;                                                     \
-    TEST_RESULT_ final_result = TEST_RESULT_OK
+#define TEST_INIT_(suite_name, filter_test_prefix)                                                 \
+    const char* TEST_SUITENAME_ = (suite_name);                                                    \
+    TEST_RESULT_ TEST_FINAL_RESULT_ = TEST_RESULT_OK;                                              \
+    const char* TEST_FILTER_TEST_PREFIX_ = (filter_test_prefix)
 
 #define TEST_FINAL_RESULT_UPDATE_(test_result)                                                     \
     do {                                                                                           \
@@ -45,12 +50,20 @@ typedef enum {
         }                                                                                          \
     } while (0)
 
-#define TEST_INIT(suite_name) TEST_INIT_(suite_name, TEST_FINAL_RESULT_)
+#define TEST_INIT(suite_name, argc, argv)                                                          \
+    /* NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) */                          \
+    TEST_INIT_(suite_name, (argc) > 1 ? (argv)[1] : NULL)
 
 #define TEST_EXIT() TEST_EXIT_(TEST_FINAL_RESULT_)
 
 #define TEST_RUN(test_function)                                                                    \
     do {                                                                                           \
+        if (TEST_FILTER_TEST_PREFIX_ != NULL &&                                                    \
+            (strncmp(TEST_FILTER_TEST_PREFIX_,                                                     \
+                     #test_function,                                                               \
+                     strlen(TEST_FILTER_TEST_PREFIX_)) != 0)) {                                    \
+            break;                                                                                 \
+        }                                                                                          \
         BW_UNUSED(fprintf(stderr, "RUN: %s.%s\n", TEST_SUITENAME_, #test_function));               \
         const TEST_RESULT_ test_result = (test_function)();                                        \
         TEST_FINAL_RESULT_UPDATE_(test_result);                                                    \

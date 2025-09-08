@@ -298,8 +298,8 @@ TEST(thread_local_data_collection, {
     }
 })
 
-int main(void) {
-    TEST_INIT("threading");
+int main(int argc, char** argv) {
+    TEST_INIT("threading", argc, argv);
 
     TEST_RUN(basic_multithreaded_backtrace);
     TEST_RUN(recursive_multithreaded_backtrace);
