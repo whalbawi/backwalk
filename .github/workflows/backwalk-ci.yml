@@ -72,7 +72,10 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, ubuntu-24.04-arm ]
-        compiler: [ gcc, clang ]
+        compiler: 
+          - { name: gcc-latest, c: gcc, cxx: g++ }
+          - { name: gcc-11, c: gcc-11, cxx: g++-11 }
+          - { name: clang-19, c: clang-19, cxx: clang++-19 }
 
     steps:
     - uses: actions/checkout@v4
@@ -81,12 +84,7 @@ jobs:
       run: ./tools/install-deps.sh
 
     - name: Generate build system
-      run: |
-        if [ "${{ matrix.compiler }}" = "clang" ]; then
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-        else
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-        fi
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build
