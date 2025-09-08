@@ -4,6 +4,8 @@ set -eux
 sudo apt-get update
 
 sudo apt-get install -y \
+    gcc-11 \
+    g++-11 \
     clang-19 \
     clang-format-19 \
     clang-tidy-19 \
