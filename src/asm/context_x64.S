@@ -4,12 +4,7 @@
 .globl context_init
 context_init:
     # Stack base for caller
-    movq %rbp, %r9
-    movq %r9, (%rdi)
-
-    # Where we're returning to
-    movq (%rbp), %r9
-    movq %r9, 8(%rdi)
+    movq %rbp, (%rdi)
 
     ret
 

@@ -14,6 +14,6 @@ void context_init(context_t* ctx);
 
 bool context_step(context_t* ctx);
 
-uintptr_t context_get_ip(context_t* ctx);
+uintptr_t context_get_ip(const context_t* ctx);
 
 #endif // BW_CONTEXT_H
