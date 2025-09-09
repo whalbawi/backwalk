@@ -3,13 +3,13 @@
 
 #ifdef __cplusplus
 #include <cinttypes>  // for PRId32, PRId64
-#include <cstdio>    // for fprintf, stderr, NULL
-#include <cstring>
+#include <cstdio>     // for fprintf, stderr, NULL
+#include <cstring>    // for strlen, strncmp
 #else
 #include <inttypes.h>  // for PRId32, PRId64
 #include <stdbool.h>   // for false, true
-#include <stdio.h>    // for fprintf, stderr, NULL
-#include <string.h>
+#include <stdio.h>     // for NULL, fprintf, stderr
+#include <string.h>    // for strlen, strncmp
 #endif
 
 #include "common.h"   // for BW_UNUSED
