@@ -9,7 +9,6 @@ add_compile_options(
     -Wextra
     -Wpedantic
     -Werror
-    -g
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
