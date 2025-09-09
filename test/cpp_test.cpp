@@ -5,11 +5,12 @@
 #include <cstdint>              // for uintptr_t
 
 #include <functional>           // for function
+#include <vector>               // for vector
 
 #include "common.h"             // for BW_UNUSED
 #include "backwalk/backwalk.h"  // for bw_backtrace
 
-#include "test.h"               // for TEST, TEST_ASSERT_EQ_INT32, TEST_RUN
+#include "test.h"               // for TEST, TEST_RUN, TEST_ASSERT_EQ_INT32
 
 namespace test_ns {
 
@@ -37,7 +38,7 @@ __attribute__((noinline)) bool inner_function(ns_backtrace_ctx_t& ctx) {
     return bw_backtrace(ns_backtrace_cb, &ctx);
 }
 
-TEST(test_backtrace, {
+TEST(backtrace, {
     auto ctx = ns_backtrace_ctx_t{};
 
     auto retval = inner_function(ctx);
@@ -66,7 +67,7 @@ __attribute__((noinline)) bool increment_backtrace_cb(uintptr_t addr,
     return true;
 }
 
-TEST(test_lambda_in_callstack, {
+TEST(lambda_in_callstack, {
     int x = 0;
     auto lambda = [&x]() { return bw_backtrace(increment_backtrace_cb, &x); };
 
@@ -75,7 +76,7 @@ TEST(test_lambda_in_callstack, {
     TEST_ASSERT_GE_INT32(x, 2);
 })
 
-TEST(test_lambda_cb, {
+TEST(lambda_cb, {
     int fnum = 0;
     auto lambda = [](uintptr_t, const char*, const char*, void* arg) {
         int* fnum = static_cast<int*>(arg);
@@ -88,7 +89,7 @@ TEST(test_lambda_cb, {
     TEST_ASSERT_GE_INT32(fnum, 1);
 })
 
-TEST(test_demangle, {
+TEST(demangle, {
     auto lambda = [](uintptr_t, const char*, const char* sname, void* arg) {
         auto* fail = static_cast<int*>(arg);
         auto* demangled = abi::__cxa_demangle(sname, nullptr, nullptr, fail);
@@ -103,7 +104,26 @@ TEST(test_demangle, {
     TEST_ASSERT_EQ_INT32(fail, 0);
 })
 
+std::vector<uintptr_t> addrs;
+bool vector_collect(uintptr_t addr, const char* fname, const char* sname, void* arg) {
+    BW_UNUSED(fname);
+    BW_UNUSED(sname);
+    auto* vec = static_cast<std::vector<uintptr_t>*>(arg);
+    vec->push_back(addr);
+    return true;
+}
+
 } // namespace test_ns
+
+namespace other_ns {
+
+TEST(cross_namespace, {
+    auto retval = bw_backtrace(test_ns::vector_collect, &test_ns::addrs);
+    TEST_ASSERT_TRUE(retval);
+    TEST_ASSERT_GE_SIZE(test_ns::addrs.size(), 1L);
+})
+
+} // namespace other_ns
 
 extern "C" {
 char* bw_dbg_demangle(const char* sname) {
@@ -120,10 +140,11 @@ void bw_dbg_demangle_free(char* sname) {
 int main(int argc, char** argv) {
     TEST_INIT("cpp", argc, argv);
 
-    TEST_RUN(test_ns::test_backtrace);
-    TEST_RUN(test_ns::test_lambda_in_callstack);
-    TEST_RUN(test_ns::test_lambda_cb);
-    TEST_RUN(test_ns::test_demangle);
+    TEST_RUN(test_ns::backtrace);
+    TEST_RUN(test_ns::lambda_in_callstack);
+    TEST_RUN(test_ns::lambda_cb);
+    TEST_RUN(test_ns::demangle);
+    TEST_RUN(other_ns::cross_namespace);
 
     TEST_EXIT();
 }
