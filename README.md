@@ -1,32 +1,101 @@
 # Backwalk
-Backwalk is a C library for collecting stacktraces.
 
-## Prerequisites
-The project is built using [CMake](https://cmake.org/) and requires version 3.20 or newer to work correctly.
+**Backwalk** is a lightweight, cross-platform stack backtracing library written in C for x86_64 and
+AArch64 architectures. It provides a simple callback-based interface for collecting stack traces
+with symbol resolution.
+
+## Features
+
+- **Cross-platform**: Supports x86_64 and AArch64 architectures
+- **Frame pointer-based**: Uses frame pointer walking for stack traversal
+- **Symbol resolution**: Automatic symbol resolution using `dladdr()`
+- **Thread-safe**: Safe for use in multithreaded environments
+- **C++ compatible**: Full C++ support with proper linkage
 
 ## Building
-Backwalk is built and tested on Ubuntu 24.04. Both x86-64 and arm64
-architectures are supported.
 
-The following will generate the build system and then build all targets:
+### Prerequisites
+
+- **CMake** 3.20 or newer
+- **GCC** 11+ or **Clang** (with C99 and C++11 support)
+- **libdl** (typically included with glibc)
+- **Frame pointers** must be enabled (`-fno-omit-frame-pointer`)
+
+### Quick Build
+
 ```bash
-$ cd <path-to-backwalk>
-$ cmake -B build
-$ cmake --build build
+git clone https://github.com/whalbawi/backwalk.git
+cd backwalk
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 
-## Tests
-Start by building the unit tests executable:
+### Run All Tests
+
 ```bash
-$ cmake --build build --target backwalk-tests
+cmake --build build
+ctest --test-dir build -V
 ```
 
-Now run the unit tests using CMake's `ctest` utility:
-```bash
-$ ctest --test-dir build -R unit-tests -V
+Individual test executables are available in the `build/` directory after building.
+
+
+## Example
+
+```c
+#include <stdio.h>
+#include <backwalk/backwalk.h>
+
+bool print_frame(uintptr_t addr, const char* fname, const char* sname, void* arg) {
+    int* frame_index = (int*)arg;
+    printf("[%d] 0x%012lx: %s (%s)\n", (*frame_index)++, addr, sname, fname);
+    return true; // Continue walking
+}
+
+void deep_function() {
+    printf("Stack trace:\n");
+    int index = 0;
+    bw_backtrace(print_frame, &index);
+}
+
+void middle_function() {
+    deep_function();
+}
+
+int main() {
+    middle_function();
+    return 0;
+}
 ```
 
-Alternatively, run the tests executable directly:
-```bash
-$ ./build/backwalk-tests
+**Sample output:**
 ```
+Stack trace:
+[0] 0x000000001234: deep_function (./example)
+[1] 0x000000001278: middle_function (./example)
+[2] 0x0000000012ab: main (./example)
+[3] 0x000000029000: __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6)
+```
+
+Note: Addresses are module-relative offsets, not absolute virtual addresses. See [usage documentation](doc/usage.md#usage) for details on PIE vs non-PIE behavior.
+
+**Compile and Link:**
+```bash
+gcc -fno-omit-frame-pointer -o example example.c -lbackwalk -ldl -rdynamic
+```
+
+**Important**: Always compile with `-fno-omit-frame-pointer` and link with `-rdynamic` for best
+results.
+
+For detailed usage patterns and complete examples, see the [`doc/`](doc/) directory.
+
+### Limitations
+
+- Requires frame pointers to be preserved (`-fno-omit-frame-pointer`)
+- Currently supports only x86_64 and AArch64 architectures
+- Symbol resolution limited by available symbol information
+- NOT async-signal-safe (yet)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
