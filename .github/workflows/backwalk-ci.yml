@@ -76,6 +76,22 @@ jobs:
           - { name: gcc-latest, c: gcc, cxx: g++ }
           - { name: gcc-11, c: gcc-11, cxx: g++-11 }
           - { name: clang-19, c: clang-19, cxx: clang++-19 }
+        build_type:
+          - { name: asan, flags: -DBW_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: ubsan, flags: -DBW_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: tsan, flags: -DBW_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: msan, flags: -DBW_ENABLE_MSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: release, flags: -DCMAKE_BUILD_TYPE=Release }
+        exclude:
+          - compiler:
+              name: gcc-latest
+            build_type:
+              name: msan
+          - compiler:
+              name: gcc-11
+            build_type:
+              name: msan
+
 
     steps:
     - uses: actions/checkout@v4
@@ -84,10 +100,28 @@ jobs:
       run: ./tools/install-deps.sh
 
     - name: Generate build system
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
+      run: >
+        cmake -B ${{github.workspace}}/build
+        -DCMAKE_C_COMPILER=${{ matrix.compiler.c }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
+        ${{ matrix.build_type.flags }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build
 
     - name: Run unit tests
       run: ctest --test-dir ${{github.workspace}}/build -V
+
+  build-result:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate build results
+        run: |
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "All build steps succeeded"
+            exit 0
+          else
+            echo "One or more build steps failed"
+            exit 1
+          fi

@@ -11,6 +11,32 @@ add_compile_options(
     -Werror
 )
 
+option(BW_ENABLE_ASAN "Enable Address Sanitizer" OFF)
+option(BW_ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+option(BW_ENABLE_MSAN "Enable Memory Sanitizer" OFF)
+option(BW_ENABLE_TSAN "Enable Memory Sanitizer" OFF)
+
+function(enable_sanitizer COMPILER_OPTION SANITIZER_NAME)
+    add_compile_options(
+        -fsanitize=${COMPILER_OPTION}
+        -g
+    )
+    add_link_options(-fsanitize=${COMPILER_OPTION})
+    message("backwalk sanitizer: ${SANITIZER_NAME} enabled")
+endfunction()
+
+if(BW_ENABLE_ASAN)
+    enable_sanitizer(address ASan)
+elseif(BW_ENABLE_UBSAN)
+    enable_sanitizer(undefined UBSan)
+elseif(BW_ENABLE_MSAN)
+    enable_sanitizer(memory MSan)
+elseif(BW_ENABLE_TSAN)
+    enable_sanitizer(thread TSan)
+else()
+    message("backwalk sanitizer: No sanitizers enabled")
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Directories
