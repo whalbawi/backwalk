@@ -28,7 +28,7 @@ bool context_step(context_t* ctx) {
     }
 
     // NOLINTNEXTLINE(performance-no-int-to-ptr)
-    uintptr_t* base = (uintptr_t*)ctx->data[0] - 1;
+    uintptr_t* base = (uintptr_t*)ctx->data[0] + FP_OFFSET;
 
     if (*base == ctx->data[0]) {
         return false;

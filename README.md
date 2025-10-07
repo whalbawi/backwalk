@@ -92,7 +92,7 @@ For detailed usage patterns and complete examples, see the [`doc/`](doc/) direct
 ### Limitations
 
 - Requires frame pointers to be preserved (`-fno-omit-frame-pointer`)
-- Currently supports only x86_64, AArch64, ARM architectures
+- Currently supports only x86_64, AArch64, and ARM architectures
 - Symbol resolution limited by available symbol information
 - NOT async-signal-safe (yet)
 

@@ -77,7 +77,7 @@ TEST(basic_backtrace, {
     bool success = bw_backtrace(validate_backtrace, &ctx);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_SIZE(ctx.fnum, 3U);
+    TEST_ASSERT_GE_SIZE(ctx.fnum, 3UL);
     TEST_ASSERT_TRUE(ctx.sname_found[0]);
 })
 
