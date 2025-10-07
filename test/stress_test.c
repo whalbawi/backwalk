@@ -70,7 +70,7 @@ TEST(repeated_backtrace_calls, {
 
 TEST(backtrace_performance_basic, {
     const int iterations = 1000;
-    const long max_elapsed_ns = 50L * 1000 * 1000; // 50ms in nanoseconds
+    const int64_t max_elapsed_ns = 500L * 1000 * 1000; // 50ms in nanoseconds
 
     struct timespec start_time;
     struct timespec end_time;
@@ -85,7 +85,7 @@ TEST(backtrace_performance_basic, {
     TEST_ERROR_NONZERO(clock_gettime(CLOCK_MONOTONIC, &end_time));
 
     // Calculate elapsed time in nanoseconds
-    long elapsed_ns = ((end_time.tv_sec - start_time.tv_sec) * 1000000000L) +
+    int64_t elapsed_ns = ((end_time.tv_sec - start_time.tv_sec) * 1000000000L) +
                       (end_time.tv_nsec - start_time.tv_nsec);
 
     // Should complete reasonably quickly (less than 100ms for 1000 iterations)

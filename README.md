@@ -1,12 +1,12 @@
 # Backwalk
 
-**Backwalk** is a lightweight, cross-platform stack backtracing library written in C for x86_64 and
-AArch64 architectures. It provides a simple callback-based interface for collecting stack traces
+**Backwalk** is a lightweight, cross-platform stack backtracing library written in C for x86_64, AArch64
+and ARM architectures. It provides a simple callback-based interface for collecting stack traces
 with symbol resolution.
 
 ## Features
 
-- **Cross-platform**: Supports x86_64 and AArch64 architectures
+- **Cross-platform**: Supports x86_64, AArch64, and ARM architectures
 - **Frame pointer-based**: Uses frame pointer walking for stack traversal
 - **Symbol resolution**: Automatic symbol resolution using `dladdr()`
 - **Thread-safe**: Safe for use in multithreaded environments
@@ -17,7 +17,7 @@ with symbol resolution.
 ### Prerequisites
 
 - **CMake** 3.20 or newer
-- **GCC** 11+ or **Clang** (with C99 and C++11 support)
+- **GCC** 10+ or **Clang** (with C99 and C++11 support)
 - **libdl** (typically included with glibc)
 - **Frame pointers** must be enabled (`-fno-omit-frame-pointer`)
 
@@ -92,7 +92,7 @@ For detailed usage patterns and complete examples, see the [`doc/`](doc/) direct
 ### Limitations
 
 - Requires frame pointers to be preserved (`-fno-omit-frame-pointer`)
-- Currently supports only x86_64 and AArch64 architectures
+- Currently supports only x86_64, AArch64, ARM architectures
 - Symbol resolution limited by available symbol information
 - NOT async-signal-safe (yet)
 

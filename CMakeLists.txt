@@ -43,6 +43,7 @@ set(BACKWALK_SRC_LIST
     ${BACKWALK_SRC_DIR}/context.c
     ${BACKWALK_SRC_DIR}/debug.c
     ${BACKWALK_SRC_DIR}/asm/context_aarch64.S
+    ${BACKWALK_SRC_DIR}/asm/context_arm.S
     ${BACKWALK_SRC_DIR}/asm/context_x64.S
     ${CMAKE_CURRENT_BINARY_DIR}/gen/version.c
 )
@@ -55,6 +56,7 @@ endif()
 
 add_library(backwalk ${BACKWALK_SRC_LIST})
 target_include_directories(backwalk PUBLIC ${BACKWALK_INCLUDE_DIR})
+target_link_libraries(backwalk PRIVATE dl)    
 if (BW_DEBUG_ENABLED)
     target_compile_definitions(backwalk PRIVATE BW_DEBUG_ENABLED)
 endif()

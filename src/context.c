@@ -1,8 +1,15 @@
-#if defined(__x86_64__) || defined(__aarch64__)
 #include "context.h"
 
 #include <stdbool.h>  // for false, bool, true
 #include <stdint.h>   // for uintptr_t
+
+#if defined(__x86_64__) || defined(__aarch64__)
+#define FP_OFFSET     0  // Offset (in words) from current fp to stack-stored previous fp
+#elif defined(__arm__)
+#define FP_OFFSET     -1 
+#else
+#error "unsupported platform: only x86_64, arm, and aarch64 are supported"
+#endif
 
 #define MIN_MMAP_ADDR (64 << 10) // Default on Linux 6.14 x86_64 - Ubuntu 24.04
 
@@ -21,7 +28,7 @@ bool context_step(context_t* ctx) {
     }
 
     // NOLINTNEXTLINE(performance-no-int-to-ptr)
-    uintptr_t* base = (uintptr_t*)ctx->data[0];
+    uintptr_t* base = (uintptr_t*)ctx->data[0] - 1;
 
     if (*base == ctx->data[0]) {
         return false;
@@ -41,6 +48,3 @@ uintptr_t context_get_ip(const context_t* ctx) {
     return ctx->data[1];
 }
 
-#else
-#error "unsupported platform: only x86_64 and aarch64 are supported"
-#endif
