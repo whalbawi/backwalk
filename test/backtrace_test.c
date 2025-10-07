@@ -71,13 +71,14 @@ __attribute__((noinline)) bool deep_function_1(context_t* ctx) {
 
 TEST(basic_backtrace, {
     context_t ctx = {0};
+    const size_t expected_fnum = 3;
     MK_SNAME_EXP(&ctx, 0, "basic_backtrace");
     ctx.sname_entries_len = 1;
 
     bool success = bw_backtrace(validate_backtrace, &ctx);
 
     TEST_ASSERT_TRUE(success);
-    TEST_ASSERT_GE_SIZE(ctx.fnum, 3UL);
+    TEST_ASSERT_GE_SIZE(ctx.fnum, expected_fnum);
     TEST_ASSERT_TRUE(ctx.sname_found[0]);
 })
 
