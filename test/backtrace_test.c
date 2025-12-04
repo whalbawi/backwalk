@@ -49,10 +49,10 @@ bool stop_after_n_frames_cb(uintptr_t addr, const char* fname, const char* sname
     BW_UNUSED(sname);
 
     stop_context_t* ctx = arg;
+    ++ctx->fnum;
     if (ctx->fnum == ctx->fnum_max) {
         return false;
     }
-    ++ctx->fnum;
 
     return true;
 }
