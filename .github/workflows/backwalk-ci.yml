@@ -109,6 +109,7 @@ jobs:
           - { name: gcc-11, c: gcc-11, cxx: g++-11 }
           - { name: clang-19, c: clang-19, cxx: clang++-19 }
         build_type:
+          - { name: asan, flags: -DBW_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug }
           - { name: ubsan, flags: -DBW_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug }
           - { name: tsan, flags: -DBW_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug }
 
