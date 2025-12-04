@@ -30,8 +30,7 @@ CheckOptions:
  - { key: readability-identifier-naming.MacroDefinitionCase,         value: UPPER_CASE           }
  - {key: readability-identifier-naming.MacroDefinitionIgnoredRegexp, value: '^[A-Z]+(_[A-Z]+)*_$'}
  - { key: readability-identifier-naming.EnumConstantCase,            value: UPPER_CASE           }
- - { key: readability-identifier-naming.GlobalConstantCase,          value: lower_case           }
- - { key: readability-identifier-naming.GlobalConstantPrefix,        value: k_                   }
+ - { key: readability-identifier-naming.GlobalConstantCase,          value: UPPER_CASE           }
  - { key: readability-identifier-naming.ConstantMemberCase,          value: lower_case           }
  - { key: readability-identifier-naming.ConstantMemberSuffix,        value: _                    }
  - { key: readability-identifier-naming.StaticConstantCase,          value: lower_case           }
