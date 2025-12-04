@@ -12,6 +12,7 @@ add_compile_options(
 )
 
 option(BW_ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+option(BW_ENABLE_ASAN "Enable Address Sanitizer" OFF)
 option(BW_ENABLE_TSAN "Enable Thread Sanitizer" OFF)
 
 function(enable_sanitizer COMPILER_OPTION SANITIZER_NAME)
@@ -25,6 +26,8 @@ endfunction()
 
 if(BW_ENABLE_UBSAN)
     enable_sanitizer(undefined UBSan)
+elseif(BW_ENABLE_ASAN)
+    enable_sanitizer(address ASan)
 elseif(BW_ENABLE_TSAN)
     enable_sanitizer(thread TSan)
 else()
