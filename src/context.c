@@ -4,14 +4,16 @@
 #include <stdbool.h>  // for false, bool, true
 #include <stdint.h>   // for uintptr_t
 
-#define MIN_MMAP_ADDR (64 << 10) // Default on Linux 6.14 x86_64 - Ubuntu 24.04
+enum {
+    BW_MIN_MMAP_ADDR = 64 << 10, // Default on Linux 6.14 x86_64 - Ubuntu 24.04
+};
 
 bool context_step(context_t* ctx) {
     if (!ctx) {
         return false;
     }
 
-    if (ctx->data[0] < MIN_MMAP_ADDR) {
+    if (ctx->data[0] < BW_MIN_MMAP_ADDR) {
         return false;
     }
 
