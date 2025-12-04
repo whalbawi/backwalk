@@ -70,7 +70,7 @@ TEST(repeated_backtrace_calls, {
 
 TEST(backtrace_performance_basic, {
     const int iterations = 1000;
-    const long max_elapsed_ns = 50L * 1000 * 1000; // 50ms in nanoseconds
+    const long max_elapsed_ns = 100L * 1000 * 1000; // 100ms in nanoseconds
 
     struct timespec start_time;
     struct timespec end_time;

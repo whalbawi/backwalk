@@ -72,10 +72,13 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, ubuntu-24.04-arm ]
-        compiler: 
+        compiler:
           - { name: gcc-latest, c: gcc, cxx: g++ }
           - { name: gcc-11, c: gcc-11, cxx: g++-11 }
           - { name: clang-19, c: clang-19, cxx: clang++-19 }
+        build_type:
+          - { name: debug, flags: -DCMAKE_BUILD_TYPE=Debug -DBW_DEBUG_ENABLED=ON }
+          - { name: release, flags: -DCMAKE_BUILD_TYPE=Release }
 
     steps:
     - uses: actions/checkout@v4
@@ -84,10 +87,63 @@ jobs:
       run: ./tools/install-deps.sh
 
     - name: Generate build system
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=${{ matrix.compiler.c }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
+      run: >
+        cmake -B ${{github.workspace}}/build
+        -DCMAKE_C_COMPILER=${{ matrix.compiler.c }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
+        ${{ matrix.build_type.flags }}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build
 
     - name: Run unit tests
       run: ctest --test-dir ${{github.workspace}}/build -V
+
+  sanitizers:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        compiler: 
+          - { name: gcc-latest, c: gcc, cxx: g++ }
+          - { name: gcc-11, c: gcc-11, cxx: g++-11 }
+          - { name: clang-19, c: clang-19, cxx: clang++-19 }
+        build_type:
+          - { name: ubsan, flags: -DBW_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: tsan, flags: -DBW_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ./tools/install-deps.sh
+
+    - name: Generate build system
+      run: >
+        cmake -B ${{github.workspace}}/build
+        -DCMAKE_C_COMPILER=${{ matrix.compiler.c }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }}
+        ${{ matrix.build_type.flags }}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Reduce ASLR entropy # https://github.com/google/sanitizers/issues/1716
+      run: sudo sysctl vm.mmap_rnd_bits=28
+
+    - name: Run unit tests
+      run: ctest --test-dir ${{github.workspace}}/build -V
+
+  build-result:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate build results
+        run: |
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "All build steps succeeded"
+            exit 0
+          else
+            echo "One or more build steps failed"
+            exit 1
+          fi
