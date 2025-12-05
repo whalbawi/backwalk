@@ -1,8 +1,8 @@
 #if defined(__x86_64__)
 
 .text
-.globl context_init
-context_init:
+.globl context_init_arch
+context_init_arch:
     # Stack base for caller
     movq %rbp, (%rdi)
 

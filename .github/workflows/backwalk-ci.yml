@@ -111,7 +111,18 @@ jobs:
         build_type:
           - { name: asan, flags: -DBW_ENABLE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug }
           - { name: ubsan, flags: -DBW_ENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+          - { name: msan, flags: -DBW_ENABLE_MSAN=ON -DCMAKE_BUILD_TYPE=Debug }
           - { name: tsan, flags: -DBW_ENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug }
+        exclude:
+          - compiler:
+              name: gcc-11
+            build_type:
+              name: msan
+          - compiler:
+              name: gcc-latest
+            build_type:
+              name: msan
+
 
     steps:
     - uses: actions/checkout@v4
