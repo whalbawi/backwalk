@@ -2,8 +2,10 @@
 #if defined(__x86_64__) || defined(__aarch64__)
 #include "context.h"
 
-#include <stdbool.h>  // for false, bool, true
-#include <stdint.h>   // for uintptr_t
+#include <stdbool.h>    // for false, bool, true
+#include <stdint.h>     // for uintptr_t
+
+#include "sanitizer.h"  // for MSAN_UNPOISON
 
 enum {
     BW_MIN_MMAP_ADDR = 64 << 10, // Default on Linux 6.14 x86_64 - Ubuntu 24.04
@@ -37,11 +39,13 @@ bool context_step(context_t* ctx) {
 
     // NOLINTNEXTLINE(performance-no-int-to-ptr)
     uintptr_t* base = (uintptr_t*)ctx->data[0];
+    MSAN_UNPOISON(base, sizeof(uintptr_t));
     if (*base == ctx->data[0]) {
         return false;
     }
-
     ctx->data[0] = *base;
+
+    MSAN_UNPOISON(base + 1, sizeof(uintptr_t));
     ctx->data[1] = *(base + 1);
 
     return true;
