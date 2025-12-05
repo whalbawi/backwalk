@@ -93,7 +93,7 @@ TEST(demangle, {
     auto lambda = [](uintptr_t, const char*, const char* sname, void* arg) {
         auto* fail = static_cast<int*>(arg);
         auto* demangled = abi::__cxa_demangle(sname, nullptr, nullptr, fail);
-        free(demangled); // NOLINT(cppcoreguidelines-no-malloc)
+        BW_UNUSED(demangled); // NOLINT(cppcoreguidelines-no-malloc)
 
         return false;
     };
