@@ -103,7 +103,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         compiler: 
           - { name: gcc-latest, c: gcc, cxx: g++ }
           - { name: gcc-11, c: gcc-11, cxx: g++-11 }
