@@ -1,7 +1,7 @@
 #ifndef BW_SANITIZER_H
 #define BW_SANITIZER_H
 
-#include "common.h"
+#include "common.h"  // for BW_UNUSED
 
 #ifdef __has_feature
 #if __has_feature(memory_sanitizer)

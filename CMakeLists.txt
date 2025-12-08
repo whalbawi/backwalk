@@ -66,6 +66,7 @@ configure_file(${BACKWALK_SRC_DIR}/version.c.in ${CMAKE_CURRENT_BINARY_DIR}/gen/
 # Source files
 set(BACKWALK_SRC_LIST
     ${BACKWALK_SRC_DIR}/backwalk.c
+    ${BACKWALK_SRC_DIR}/common.c
     ${BACKWALK_SRC_DIR}/context.c
     ${BACKWALK_SRC_DIR}/debug.c
     ${BACKWALK_SRC_DIR}/asm/context_aarch64.S
@@ -91,6 +92,9 @@ install(DIRECTORY ${BACKWALK_INCLUDE_DIR}/ DESTINATION include)
 function(bw_test TEST_NAME)
     file(GLOB TEST_FILE "${BACKWALK_TEST_DIR}/${TEST_NAME}.c*")
     add_executable(${TEST_NAME} ${TEST_FILE})
+    if (BW_DEBUG_ENABLED)
+        target_compile_definitions(${TEST_NAME} PRIVATE BW_DEBUG_ENABLED)
+    endif()
     target_include_directories(${TEST_NAME} PRIVATE ${BACKWALK_SRC_DIR} ${BACKWALK_TEST_DIR})
     target_link_libraries(${TEST_NAME} PRIVATE backwalk)
     target_link_options(${TEST_NAME} PRIVATE -rdynamic)
@@ -101,6 +105,8 @@ bw_test(backtrace_test)
 target_compile_options(backtrace_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 bw_test(edge_cases_test)
 target_compile_options(edge_cases_test BEFORE PRIVATE -fno-optimize-sibling-calls)
+bw_test(signal_test)
+target_compile_options(signal_test BEFORE PRIVATE -fno-optimize-sibling-calls)
 bw_test(stress_test)
 bw_test(threading_test)
 target_link_libraries(threading_test PRIVATE pthread)

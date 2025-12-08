@@ -161,11 +161,16 @@ typedef enum {
 
 #define TEST_FAIL() return TEST_RESULT_FAIL
 
+#define TEST_ERROR(fmt, ...)                                                                       \
+    do {                                                                                           \
+        TEST_LOG_("test error: " fmt __VA_OPT__(, ) __VA_ARGS__);                                  \
+        return TEST_RESULT_ERR;                                                                    \
+    } while (0)
+
 #define TEST_ERROR_NONZERO(expr)                                                                   \
     do {                                                                                           \
         if ((expr) != 0) {                                                                         \
-            TEST_LOG_("test error: %s == 0\n\tactual: %" PRId32 "\n", #expr, expr);                \
-            return TEST_RESULT_ERR;                                                                \
+            TEST_ERROR("%s == 0\n\tactual: %" PRId32 "\n", #expr, expr);                           \
         }                                                                                          \
     } while (0)
 
