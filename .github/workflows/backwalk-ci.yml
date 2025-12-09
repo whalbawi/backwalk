@@ -122,7 +122,11 @@ jobs:
               name: gcc-latest
             build_type:
               name: msan
-
+          - compiler:
+              name: gcc-latest
+            build_type:
+              name: tsan
+            os: ubuntu-24.04-arm
 
     steps:
     - uses: actions/checkout@v4
