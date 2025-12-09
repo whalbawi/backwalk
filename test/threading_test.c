@@ -37,8 +37,11 @@ bool track_thread_data(uintptr_t addr, const char* fname, const char* sname, voi
 
     __sync_fetch_and_add(&stats->total_calls, 1);
 
-    if (fname && fname[0] != '\0') {
-        __sync_fetch_and_add(&stats->valid_fnames, 1);
+    if (fname) {
+        BW_UNUSED(fprintf(stderr, ">>>>> fname=%p\n", (void*)fname));
+        if (fname[0] != '\0') {
+            __sync_fetch_and_add(&stats->valid_fnames, 1);
+        }
     }
 
     if (sname && sname[0] != '\0') {
@@ -282,7 +285,7 @@ TEST(thread_local_data_collection, {
 
     // Create data collection threads
     for (int i = 0; i < num_threads; i++) {
-        int retval = pthread_create(&threads[i], NULL, data_collection_thread, &stats[i]);
+        int retval = pthread_create(&threads[i], NULL, data_collection_thread, stats + i);
         TEST_ERROR_NONZERO(retval);
     }
 
