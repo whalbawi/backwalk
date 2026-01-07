@@ -17,7 +17,7 @@ void print_frame(uintptr_t addr, const char* fname, const char* sname) {
         }
     }
 
-    BW_UNUSED(fprintf(stderr, "[%#08jx] %s:%s\n", addr, fname, sname));
+    BW_UNUSED(fprintf(stderr, "[%#08jx] %s:%s\n", (uintmax_t) addr, fname, sname));
 
     if (bw_dbg_demangle_free != NULL && demangled_sname != NULL) {
         bw_dbg_demangle_free(demangled_sname);

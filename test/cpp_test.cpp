@@ -120,7 +120,7 @@ namespace other_ns {
 TEST(cross_namespace, {
     auto retval = bw_backtrace(test_ns::vector_collect, &test_ns::addrs);
     TEST_ASSERT_TRUE(retval);
-    TEST_ASSERT_GE_SIZE(test_ns::addrs.size(), 1L);
+    TEST_ASSERT_GE_SIZE(test_ns::addrs.size(), (size_t) 1U);
 })
 
 } // namespace other_ns
