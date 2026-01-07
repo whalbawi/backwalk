@@ -1,5 +1,5 @@
 
-#if defined(__x86_64__) || defined(__aarch64__) || define(__arm__)
+#if defined(__x86_64__) || defined(__aarch64__) || defined(__arm__)
 #include "context.h"
 
 #include <stdbool.h>    // for false, bool, true
