@@ -9,9 +9,9 @@
 
 // Offset (in words) from current fp to stack-stored previous fp
 #if defined(__arm__)
-#define FP_OFFSET     -1 
+#define FP_OFFSET -1
 #else
-#define FP_OFFSET     0  
+#define FP_OFFSET 0
 #endif
 
 enum {

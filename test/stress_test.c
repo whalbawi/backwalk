@@ -86,7 +86,7 @@ TEST(backtrace_performance_basic, {
 
     // Calculate elapsed time in nanoseconds
     int64_t elapsed_ns = ((end_time.tv_sec - start_time.tv_sec) * 1000000000L) +
-                      (end_time.tv_nsec - start_time.tv_nsec);
+                         (end_time.tv_nsec - start_time.tv_nsec);
 
     // Should complete reasonably quickly (less than 100ms for 1000 iterations)
     TEST_ASSERT_LE_INT64(elapsed_ns, max_elapsed_ns);
