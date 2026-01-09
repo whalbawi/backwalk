@@ -1,11 +1,18 @@
 
-#if defined(__x86_64__) || defined(__aarch64__)
+#if defined(__x86_64__) || defined(__aarch64__) || defined(__arm__)
 #include "context.h"
 
 #include <stdbool.h>    // for false, bool, true
 #include <stdint.h>     // for uintptr_t
 
 #include "sanitizer.h"  // for MSAN_UNPOISON
+
+// Offset (in words) from current fp to stack-stored previous fp
+#if defined(__arm__)
+#define FP_OFFSET -1
+#else
+#define FP_OFFSET 0
+#endif
 
 enum {
     BW_MIN_MMAP_ADDR = 64 << 10, // Default on Linux 6.14 x86_64 - Ubuntu 24.04
@@ -38,7 +45,7 @@ bool context_step(context_t* ctx) {
     }
 
     // NOLINTNEXTLINE(performance-no-int-to-ptr)
-    uintptr_t* base = (uintptr_t*)ctx->data[0];
+    uintptr_t* base = (uintptr_t*)ctx->data[0] + FP_OFFSET;
     MSAN_UNPOISON(base, sizeof(uintptr_t));
     if (*base == ctx->data[0]) {
         return false;

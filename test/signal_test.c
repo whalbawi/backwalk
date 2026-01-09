@@ -99,7 +99,7 @@ TEST(safe_backtrace, {
 
     TEST_ERROR_NONZERO(pthread_join(test_state.worker_th, NULL));
 
-    TEST_ASSERT_GE_SIZE(frame_cnt, 1UL);
+    TEST_ASSERT_GE_SIZE(frame_cnt, (size_t)1U);
     bw_context_fini(test_state.backtrace_ctx);
     BW_UNUSED(close(test_state.bt_collect_pipe[1]));
     BW_UNUSED(close(test_state.bt_collect_pipe[0]));
